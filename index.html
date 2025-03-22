@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Canvas Fingerprint ハッシュ表示</title>
+</head>
+<body>
+  <h1>Canvas Fingerprint ハッシュ値</h1>
+  <p id="fp">Loading...</p>
+
+  <!-- blueimp-md5ライブラリをCDNから読み込み -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+  <script>
+    // フィンガープリント生成関数
+    const canvasFP = () => {
+      const canvas = document.createElement("canvas");
+      const dpr = window.devicePixelRatio || 1;
+      // 高解像度用にサイズを調整
+      canvas.width = 200 * dpr;
+      canvas.height = 100 * dpr;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return "";
+      ctx.scale(dpr, dpr);
+
+      // 背景グラデーション
+      const gradient = ctx.createLinearGradient(0, 0, 200, 100);
+      gradient.addColorStop(0, "#ff9a9e");
+      gradient.addColorStop(1, "#fad0c4");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 200, 100);
+
+      // テキスト描画
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.font = "16px Arial";
+      ctx.fillStyle = "#069";
+      ctx.fillText("Canvas FP Test 😎", 100, 50);
+
+      // シェイプ描画：合成モードで差分を強調
+      ctx.globalCompositeOperation = "difference";
+      ctx.fillStyle = "rgba(255, 0, 0, 0.6)";
+      ctx.beginPath();
+      ctx.arc(50, 50, 20, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(0, 255, 0, 0.6)";
+      ctx.beginPath();
+      ctx.arc(150, 50, 20, 0, Math.PI * 2);
+      ctx.fill();
+
+      // ハッシュ生成
+      const dataURL = canvas.toDataURL();
+      return md5(dataURL);
+    };
+
+    // DOMが読み込まれたらハッシュを表示
+    document.addEventListener("DOMContentLoaded", () => {
+      const hash = canvasFP();
+      document.getElementById("fp").textContent = hash;
+    });
+  </script>
+</body>
+</html>
+
